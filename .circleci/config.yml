@@ -1,0 +1,34 @@
+version: 2.1
+
+commands:
+  install_newman:
+    description: "Install Newman and HTML reporter"
+    steps:
+      - run:
+          name: Install Newman
+          command: |
+            sudo npm install -g newman newman-reporter-htmlextra
+
+jobs:
+  run_postman_tests:
+    docker:
+      - image: cimg/node:16.10
+    steps:
+      - checkout
+      - install_newman
+      - run:
+          name: Run Postman Collection
+          command: |
+            newman run Postman- Просунутий рівень HW2.postman_collection.json -e ClickUp.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export results/postman-report.html
+
+      - store_test_results:
+          path: results
+      - store_artifacts:
+          path: results
+          destination: postman-reports
+
+workflows:
+  version: 2
+  postman_tests_workflow:
+    jobs:
+      - run_postman_tests
