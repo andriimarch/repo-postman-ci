@@ -19,7 +19,7 @@ jobs:
       - run:
           name: Run Postman Collection
           command: |
-            newman run Postman- Просунутий рівень HW2.postman_collection.json -e ClickUp.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export results/postman-report.html
+            newman run postmanHW.postman_collection.json -e ClickUp.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export results/postman-report.html
 
       - store_test_results:
           path: results
