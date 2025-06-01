@@ -1,0 +1,668 @@
+{
+	"info": {
+		"_postman_id": "adbcc54a-7607-4b8e-9308-5d2f7fa3869a",
+		"name": "Postman: Просунутий рівень HW2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9973609"
+	},
+	"item": [
+		{
+			"name": "Get List / Get Team ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get Team Id\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var teamId = jsonData.teams[0].id;",
+							"    console.log(\"Team ID:\", teamId);",
+							"    pm.collectionVariables.set(\"TeamID\", teamId)",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "pk_188648872_RAUMQD7FOHL5JHKE26AJOWM65XQAFH0M",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}team",
+					"host": [
+						"{{URL}}team"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get List / Create Space",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create Space with random name\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var spaceID = jsonData.id;",
+							"    console.log(\"Space ID:\", spaceID)",
+							"    pm.collectionVariables.set(\"Space ID\", spaceID)",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "pk_188648872_RAUMQD7FOHL5JHKE26AJOWM65XQAFH0M",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Manager {{$randomFullName}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/team/{{TeamID}}/space",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"team",
+						"{{TeamID}}",
+						"space"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get List / Check Space exists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const Ajv = require('ajv');",
+							"const ajv = new Ajv();",
+							"",
+							"pm.test(\"Check space exists and matches the ID\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    // var spaceID = jsonData.spaces[0].id;",
+							"    console.log(jsonData)",
+							"    pm.expect(jsonData.spaces[0].id).to.eql(pm.collectionVariables.get(\"Space ID\"));",
+							"});",
+							"",
+							"// Define the schema for the response body",
+							"const spaceSchema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"        spaces: {",
+							"            type: \"array\",",
+							"            items: {",
+							"                type: \"object\",",
+							"                properties: {",
+							"                    id: { type: \"string\" },",
+							"                    name: { type: \"string\" },",
+							"                    color: { type: [\"string\", \"null\"] },",
+							"                    private: { type: \"boolean\" },",
+							"                    avatar: { type: [\"string\", \"null\"] },",
+							"                    admin_can_manage: { type: [\"boolean\", \"null\"] },",
+							"                    statuses: {",
+							"                        type: \"array\",",
+							"                        items: {",
+							"                            type: \"object\",",
+							"                            properties: {",
+							"                                id: { type: \"string\" },",
+							"                                status: { type: \"string\" },",
+							"                                type: { type: \"string\" },",
+							"                                orderindex: { type: \"number\" },",
+							"                                color: { type: \"string\" }",
+							"                            },",
+							"                            required: [\"id\", \"status\", \"type\", \"orderindex\", \"color\"]",
+							"                        }",
+							"                    },",
+							"                    multiple_assignees: { type: \"boolean\" },",
+							"                    features: {",
+							"                        type: \"object\",",
+							"                        properties: {",
+							"                            due_dates: {",
+							"                                type: \"object\",",
+							"                                properties: {",
+							"                                    enabled: { type: \"boolean\" },",
+							"                                    start_date: { type: \"boolean\" },",
+							"                                    remap_due_dates: { type: \"boolean\" },",
+							"                                    remap_closed_due_date: { type: \"boolean\" }",
+							"                                },",
+							"                                required: [\"enabled\", \"start_date\", \"remap_due_dates\", \"remap_closed_due_date\"]",
+							"                            },",
+							"                            sprints: { type: \"object\", properties: { enabled: { type: \"boolean\" } }},",
+							"                            points: { type: \"object\", properties: { enabled: { type: \"boolean\" } }},",
+							"                            custom_items: { type: \"object\", properties: { enabled: { type: \"boolean\" } }},",
+							"                            checklists: { type: \"object\", properties: { enabled: { type: \"boolean\" } }},",
+							"                            milestones: { type: \"object\", properties: { enabled: { type: \"boolean\" } }},",
+							"                            remap_dependencies: { type: \"object\", properties: { enabled: { type: \"boolean\" } }},",
+							"                            dependency_warning: { type: \"object\", properties: { enabled: { type: \"boolean\" } }},",
+							"                            status_pies: { type: \"object\", properties: { enabled: { type: \"boolean\" } }},",
+							"                            emails: { type: \"object\", properties: { enabled: { type: \"boolean\" } }},",
+							"                            time_tracking: {",
+							"                                type: \"object\",",
+							"                                properties: {",
+							"                                    default_to_billable: { type: \"number\" }",
+							"                                },",
+							"                                required: [\"default_to_billable\"]",
+							"                            },",
+							"                            scheduler_enabled: { type: \"boolean\" }",
+							"                        },",
+							"                        required: [\"due_dates\", \"sprints\", \"points\", \"custom_items\", \"checklists\", \"milestones\", \"remap_dependencies\", \"dependency_warning\", \"status_pies\", \"emails\", \"time_tracking\", \"scheduler_enabled\"]",
+							"                    },",
+							"                    archived: { type: \"boolean\" }",
+							"                },",
+							"                required: [\"id\", \"name\", \"private\", \"statuses\", \"multiple_assignees\", \"features\", \"archived\"]",
+							"            }",
+							"        }",
+							"    },",
+							"    required: [\"spaces\"]",
+							"};",
+							"",
+							"// Validate the response body against the schema",
+							"pm.test('Response body matches the schema', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(ajv.validate(spaceSchema, response)).to.be.true;",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "pk_188648872_RAUMQD7FOHL5JHKE26AJOWM65XQAFH0M",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}/team/{{TeamID}}/space",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"team",
+						"{{TeamID}}",
+						"space"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get List / Create Folder",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create Folder with random name\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var folderId = jsonData.id;",
+							"    pm.collectionVariables.set(\"Folder ID\", folderId); ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "pk_188648872_RAUMQD7FOHL5JHKE26AJOWM65XQAFH0M",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\":\"{{$randomCompanyName}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/space/{{Space ID}}/folder",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"space",
+						"{{Space ID}}",
+						"folder"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get List / Create List",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create first list wih a random name\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var firstListName = jsonData.id;",
+							"    pm.collectionVariables.set(\"First List ID\",firstListName);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(\"Creating second list\")",
+							"var folderID = pm.collectionVariables.get(\"Folder ID\");",
+							"// (async () => {  ",
+							"    try {",
+							"        const response = await pm.sendRequest({",
+							"            url: `https://api.clickup.com/api/v2/folder/${folderID}/list`,",
+							"            method: \"POST\",",
+							"            header: [ ",
+							"                {",
+							"                    key: \"Authorization\",",
+							"                    value: pm.environment.get(\"Authorization token\") ",
+							"                },",
+							"                {",
+							"                    key: \"Content-Type\",",
+							"                    value: \"application/json\" ",
+							"                }",
+							"            ],",
+							"            body: {",
+							"                mode: \"raw\", ",
+							"                raw: JSON.stringify({",
+							"                    \"name\": \"List from the pre-script\"",
+							"                })",
+							"            }",
+							"        });",
+							"",
+							"        console.log(response.json());",
+							"    } catch (err) {",
+							"        console.error(err);",
+							"    }",
+							"// });"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "pk_188648872_RAUMQD7FOHL5JHKE26AJOWM65XQAFH0M",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\":\"List from the main request\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/folder/{{Folder ID}}/list",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"folder",
+						"{{Folder ID}}",
+						"list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get List / Get Lists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const Ajv = require('ajv');",
+							"const ajv = new Ajv();",
+							"",
+							"// Validate the response schema",
+							"pm.test('Response schema is valid', function () {",
+							"    const schema = {",
+							"        type: 'object',",
+							"        properties: {",
+							"            lists: {",
+							"                type: 'array',",
+							"                items: {",
+							"                    type: 'object',",
+							"                    properties: {",
+							"                        id: { type: 'string' },",
+							"                        name: { type: 'string' },",
+							"                        orderindex: { type: 'number' },",
+							"                        content: { type: 'string' },",
+							"                        status: { type: 'null' },",
+							"                        priority: { type: 'null' },",
+							"                        assignee: { type: 'null' },",
+							"                        task_count: { type: 'number' },",
+							"                        due_date: { type: 'null' },",
+							"                        start_date: { type: 'null' },",
+							"                        folder: {",
+							"                            type: 'object',",
+							"                            properties: {",
+							"                                id: { type: 'string' },",
+							"                                name: { type: 'string' },",
+							"                                hidden: { type: 'boolean' },",
+							"                                access: { type: 'boolean' }",
+							"                            },",
+							"                            required: ['id', 'name', 'hidden', 'access']",
+							"                        },",
+							"                        space: {",
+							"                            type: 'object',",
+							"                            properties: {",
+							"                                id: { type: 'string' },",
+							"                                name: { type: 'string' },",
+							"                                access: { type: 'boolean' }",
+							"                            },",
+							"                            required: ['id', 'name', 'access']",
+							"                        },",
+							"                        archived: { type: 'boolean' },",
+							"                        override_statuses: { type: 'boolean' },",
+							"                        permission_level: { type: 'string' }",
+							"                    },",
+							"                    required: ['id', 'name', 'orderindex', 'content', 'status', 'priority', 'assignee', 'task_count', 'due_date', 'start_date', 'folder', 'space', 'archived', 'override_statuses', 'permission_level']",
+							"                }",
+							"            }",
+							"        },",
+							"        required: ['lists']",
+							"    };",
+							"",
+							"    const validate = ajv.compile(schema);",
+							"    const valid = validate(pm.response.json());",
+							"",
+							"    pm.expect(valid).to.be.true;",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"jsonData.lists.forEach ((item) => {",
+							"    console.log(item.id)",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "pk_188648872_RAUMQD7FOHL5JHKE26AJOWM65XQAFH0M",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}/folder/{{Folder ID}}/list",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"folder",
+						"{{Folder ID}}",
+						"list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get List / Update List",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"(async () => {  ",
+							"    try {",
+							"        const response = await pm.sendRequest({",
+							"            url: `https://api.clickup.com/api/v2/list/${pm.collectionVariables.get(\"First List ID\")}`,",
+							"            method: \"DELETE\",",
+							"            header: [",
+							"                {",
+							"                    key: \"Authorization\",",
+							"                    value: pm.variables.get(\"Authorization token\")",
+							"                }",
+							"            ]",
+							"        });",
+							"",
+							"        console.log(response.json());",
+							"    } catch (err) {",
+							"        console.error(err);",
+							"    }",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "pk_188648872_RAUMQD7FOHL5JHKE26AJOWM65XQAFH0M",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\":\"Updated to {{$randomFullName}},{{$randomBankAccount}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{URL}}/list/{{First List ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"list",
+						"{{First List ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get List / Check removed list exists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"List is removed\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    console.log(jsonData);",
+							"    pm.expect(jsonData).to.have.property(\"deleted\");",
+							"    pm.expect(jsonData.deleted).to.be.false;",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "pk_188648872_RAUMQD7FOHL5JHKE26AJOWM65XQAFH0M",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}/list/{{First List ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"list",
+						"{{First List ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get List / Delete Space",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Space is removed\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "pk_188648872_RAUMQD7FOHL5JHKE26AJOWM65XQAFH0M",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}/space/{{Space ID}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"space",
+						"{{Space ID}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "TeamID",
+			"value": ""
+		},
+		{
+			"key": "Space ID",
+			"value": ""
+		},
+		{
+			"key": "Folder ID",
+			"value": ""
+		},
+		{
+			"key": "First List ID",
+			"value": ""
+		},
+		{
+			"key": "Another List ID",
+			"value": ""
+		},
+		{
+			"key": "URL",
+			"value": "https://api.clickup.com/api/v2/",
+			"type": "string"
+		}
+	]
+}
